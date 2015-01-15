@@ -1,0 +1,9 @@
+package com.smart.adlware.interfaces;
+
+import android.view.LayoutInflater;
+import android.view.View;
+
+public interface PlanCareHeaderInterface {
+	public int getViewType();
+    public View getView(LayoutInflater inflater, View convertView);
+}

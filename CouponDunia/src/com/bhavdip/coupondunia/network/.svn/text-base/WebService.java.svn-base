@@ -1,0 +1,134 @@
+package com.smart.adlware.network;
+
+public class WebService {
+//	public static final String WEB_SERVICE_URL = "https://app.adlware.com/adlwareiphoneservice/adlwareiphone_new.svc/";
+	// public static final String WEB_SERVICE_LIVEURL = "https://my.adlware.com/adlwareiphoneservice/adlwareiphone_new.svc/";
+
+	// live URL
+	 public static final String WEB_SERVICE_URL = "https://my.adlware.com/adlwareiphoneservice/adlwareiphone_new.svc/";
+
+	public static final String WEB_URL = "https://app.adlware.com";
+
+	/**
+	 * @author Bhavdip K. Bhalodia convert var name to UPPERCASE : "CTRL + SHIFT + x"
+	 */
+
+	public static final String AUTHENTICATE = "Authenticate";
+	public static final String GETALLGLOBALCODES = "GetAllGlobalCodes";
+
+	public static final String GETSECURITYQUESTION = "GetSecurityQuestion";
+	public static final String FORGETPASSWORD = "ForgetPassword";
+
+	// web-services for Leads
+	public static final String GETLEADSNAMELIST = "GetLeadsNameList";
+	public static final String GETLEADSBLANKLIST = "GetLeadsBlankList";
+	public static final String GETLEAD = "GetLead";
+	public static final String ADDLEAD = "AddLead";
+	public static final String EDITLEAD = "EditLead";
+	public static final String DELETELEAD = "DeleteLead";
+	public static final String CONVERTTOCLIENT = "ConvertToClient";
+
+	// web-services for Clients
+	public static final String GETCLIENTNAMELIST = "GetClientNameList";
+	public static final String GETCLIENTDETAILS = "GetClientDetails";
+	public static final String GETCLIENTSCHEDULELIST = "GetClientScheduleList";
+	// For add/edit Client Notes and Document Events of Service Plan
+	public static final String GETCLIENTSERVICEPLAN = "GetClientServicePlan";
+	public static final String GETCAREGIVERSLIST = "GetCareGiversList";
+
+	public static final String MODIFYCLIENTDETAILS = "ModifyClientDetails";
+
+	// for Client service Assessment : on Show Click
+	public static final String GETCAREGIVERPLANOFCARE = "GetCaregiverPlanOfCare";
+
+	// For Prospects
+	public static final String GETALLPROSPECTS = "GetAllProspects";
+	public static final String GETPROSPECTSBLANKLIST = "GetProspectsBlankList";
+	public static final String GETPROSPECTSDETAIL = "GetProspectsDetail";
+	public static final String DELETEPROSPECTS = "DeleteProspects";
+	public static final String ADDPROSPECTS = "AddProspects";
+	public static final String EDITPROSPECTS = "EditProspects";
+	public static final String CONVERTTOCAREGIVER = "ConvertToCaregiver";
+
+	// for Caregiver
+	public static final String ADDCAREGIVER = "AddCaregiver";
+	public static final String ADDSCHEDULENOTE = "AddScheduleNote";
+	public static final String CHECKCARGIVERPERCENT = "CheckCargiverPercent";
+	public static final String GETCAREGIVERDETAILS = "GetCaregiverDetails";
+	public static final String GETCAREGIVERREFERENCES = "GetCaregiverReferences";
+	public static final String GETCAREGIVERSNAMELIST = "GetCareGiversNameList";
+	public static final String GETCAREGIVERSCHEDULELIST = "GetCareGiverScheduleList";
+	public static final String REMOVECAREGIVER = "RemoveCaregiver";
+	public static final String GETWORKDETAIL = "GetWorkDetail";
+
+	public static final String MODIFYCAREGIVERDETAILS = "ModifyCaregiverDetails";
+
+	// Referral Company
+	public static final String GETALLCOMPANYLIST = "GetAllCompanyList";
+	public static final String GETREFFERALCOMPANYBYID = "GetRefferalCompanyByID";
+	
+	// Alerts
+	public static final String GETALERTSLIST = "GetAlertsList";
+	
+	//Tasks
+	public static final String GETTODOLIST = "GetToDoList";
+
+	// Referral Contact
+	public static final String GETALLCONTACTLIST = "GetAllContactList";
+
+	// public static final String GETREFERRALSLIST = "GetReferralsList";
+	// public static final String GETCOMPANYCONTACTS = "GetCompanyContacts";
+
+	// public static final String GETALLCONTACTSACCTOALPHABET = "GetAllContactsAccToAlphabet";
+	// public static final String GETCONTACTCASES = "GetContactCases";
+	// public static final String GETCOMPANIESINFO = "GetCompaniesInfo";
+	// public static final String GETCOMPANYINFO = "GetCompanyInfo";
+	// public static final String GETCLIENTSLIST = "GetClientsList";
+	// public static final String GETCLIENTINFO = "GetClientInfo";
+	// public static final String GETCLIENTSCHEDULESLIST = "GetClientSchedulesList";
+	// public static final String GETCLIENTDIAGNOSIS = "GetClientDiagnosis";
+	// public static final String GETREFERRALCOMPANYCLIENTLIST = "GetReferralCompanyClientList";
+	// public static final String GETREFERRALCONTACTCLIENTLIST = "GetReferralContactClientList";
+	// public static final String GETCLIENTCAREPLANGROUPS = "GetClientCarePlanGroups";
+	// public static final String GETCLIENTCAREPLANGROUPTASKS = "GetClientCarePlanGroupTasks";
+	// public static final String GETMASTERDROPDOWN = "GetMasterDropDown";
+	// public static final String GETALLLEADS = "GetAllLeads";
+
+	// public static final String GETCOUNTRIES = "GetCountries";
+	// public static final String GETSTATES = "GetStates";
+
+	// public static final String GETCAREGIVER = "GetCaregiver";
+
+	// public static final String GETCLIENTEMERGENCYCONTACTS = "GetClientEmergencyContacts";
+	// public static final String GETTODAYSALERTSANDTODO = "GetTodaysAlertsAndTodo";
+	// public static final String GETTODODETAIL = "GetTodoDetail";
+	// public static final String GETTODOUSERSLIST = "GetToDoUsersList";
+	// public static final String GETCOMPANYNOTESLIST = "GetCompanyNotesList";
+
+	// public static final String GETREQUIREMENT = "GetRequirement";
+
+	// public static final String SENDMAIL = "SendMail";
+
+	// public static final String DELETESCHEDULE = "DeleteSchedule";
+	// public static final String ALERTMARKASREAD = "AlertMarkAsRead";
+	// public static final String ADDTASK = "AddTask";
+	// public static final String TASKMARKASCOMPLETED = "TaskMarkAsCompleted";
+
+	// public static final String GETREFFERALCONTACTBYID = "GetRefferalContactByID";
+	// public static final String GETCOMPANYCONTACTLIST = "GetCompanyContactList";
+	// public static final String ADDREFERRALCOMPANY = "AddReferralCompany";
+	// public static final String EDITREFERRALCOMPANY = "EditReferralCompany";
+	// public static final String ADDREFERRALCONTACTS = "AddReferralContacts";
+	// public static final String EDITREFERRALCONTACTS = "EditReferralContacts";
+	// public static final String CONTACTSCALLLIST = "ContactsCallList";
+	// public static final String SENDSMS = "SendSMS";
+	// public static final String GETNEARBYADDRESS = "GetNearByAddress";
+	// public static final String EDITTASK = "EditTask";
+	// public static final String DELETETASK = "DeleteTask";
+	// public static final String UPDATEPERMISSION = "UpdatePermission";
+
+	// public static final String RECEIVESMSLIST = "ReceiveSMSlist";
+	// public static final String SENDSMSLIST = "SendSMSlist";
+	// public static final String GETCAPABILITYTOKEN = "getCapabilityToken";
+
+}

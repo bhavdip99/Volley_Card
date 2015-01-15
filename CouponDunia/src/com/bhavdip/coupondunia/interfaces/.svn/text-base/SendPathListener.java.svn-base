@@ -1,0 +1,6 @@
+package com.smart.adlware.interfaces;
+
+public interface SendPathListener {
+
+	public void OnsendPath(String path);
+}

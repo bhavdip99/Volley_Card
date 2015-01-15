@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/adlwareandroid/!svn/ver/105/adlwareandroidsvn/ADLware/src/com/smart/adlware/interfaces
+END
+PlanCareHeaderInterface.java
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/adlwareandroid/!svn/ver/105/adlwareandroidsvn/ADLware/src/com/smart/adlware/interfaces/PlanCareHeaderInterface.java
+END
+ImagePickerDialog.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/adlwareandroid/!svn/ver/105/adlwareandroidsvn/ADLware/src/com/smart/adlware/interfaces/ImagePickerDialog.java
+END
+ImagePickerInterface.java
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/adlwareandroid/!svn/ver/105/adlwareandroidsvn/ADLware/src/com/smart/adlware/interfaces/ImagePickerInterface.java
+END
+Row.java
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/adlwareandroid/!svn/ver/105/adlwareandroidsvn/ADLware/src/com/smart/adlware/interfaces/Row.java
+END
+DatePickerInterface.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/adlwareandroid/!svn/ver/105/adlwareandroidsvn/ADLware/src/com/smart/adlware/interfaces/DatePickerInterface.java
+END
+SendPathListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/adlwareandroid/!svn/ver/105/adlwareandroidsvn/ADLware/src/com/smart/adlware/interfaces/SendPathListener.java
+END
+ServiceCallback.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/adlwareandroid/!svn/ver/105/adlwareandroidsvn/ADLware/src/com/smart/adlware/interfaces/ServiceCallback.java
+END

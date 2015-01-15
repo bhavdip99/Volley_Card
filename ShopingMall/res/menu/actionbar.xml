@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:id="@+id/actionbarcart"
+        android:icon="@drawable/ic_home"
+        android:title="Add To Cart"
+        android:showAsAction="always"
+        
+        />
+
+</menu>

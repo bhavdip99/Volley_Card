@@ -1,0 +1,78 @@
+package com.bhavdip.coupondunia.network;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+public class ServiceHandler {
+
+	static String response = null;
+	public final static int GET = 1;
+	public final static int POST = 2;
+
+	public ServiceHandler() {
+
+	}
+
+	/*
+	 * Making service call
+	 * 
+	 * @url - url to make request
+	 * 
+	 * @method - http request method
+	 */
+	public String makeServiceCall(String url, int method) {
+
+		try {
+			// http client
+			DefaultHttpClient httpClient = new DefaultHttpClient();
+			ResponseHandler<String> resonseHandler = new BasicResponseHandler();
+			HttpEntity httpEntity = null;
+			HttpResponse httpResponse = null;
+
+			// Checking http request method type
+			if (method == POST) {
+				HttpPost httpPost = new HttpPost(url);
+				// adding post params
+				// if (jsonParam != null) {
+				// httpPost.setEntity(new ByteArrayEntity(jsonParam.getBytes("UTF8")));
+				// httpPost.setHeader("Content-Type", "application/json");
+				// }
+
+				response = httpClient.execute(httpPost, resonseHandler);
+				System.out.println("-----response------" + response);
+
+			}
+
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return response;
+
+	}
+
+	/*
+	 * Making service call
+	 * 
+	 * @url - url to make request
+	 * 
+	 * @method - http request method
+	 * 
+	 * @params - http request params
+	 */
+	public String makeServiceCall(String url, int method, String jsonParam) {
+		return this.makeServiceCall(url, method, null);
+	}
+}

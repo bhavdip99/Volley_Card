@@ -1,0 +1,21 @@
+/*
+ * Class name- Row
+ * v1.0
+ * Date- 2014-18-08
+ * Author- smartDataEnterprises (I) pvt ltd
+ */
+
+package com.smart.adlware.interfaces;
+
+import android.view.View;
+
+/**
+ * Interface used to implement row items.
+ */
+public interface Row {
+    //get the inflated view
+    public View getView(int position, View convertView);
+
+    //get the type of view
+    public int getViewType();
+}

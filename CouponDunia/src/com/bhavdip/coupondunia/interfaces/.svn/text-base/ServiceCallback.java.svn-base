@@ -1,0 +1,6 @@
+package com.smart.adlware.interfaces;
+
+public interface ServiceCallback {
+	
+	public void onTaskDone(String result);
+}

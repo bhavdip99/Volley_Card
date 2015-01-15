@@ -1,0 +1,7 @@
+package com.smart.adlware.interfaces;
+
+
+
+public interface ImagePickerInterface {
+	public void imagePickFrom(String selectedPickerString);
+}
