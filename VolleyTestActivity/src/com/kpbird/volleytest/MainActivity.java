@@ -1,13 +1,23 @@
 package com.kpbird.volleytest;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,45 +27,119 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.FadeInImageListener;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageCache;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.kpbird.volleytest.model.CategoryModel;
+import com.kpbird.volleytest.model.DataModel;
+import com.mani.volleydemo.util.BitmapUtil;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LocationListener {
 
 	private String TAG = this.getClass().getSimpleName();
 	private ListView lstView;
 	private RequestQueue mRequestQueue;
-	private ArrayList<NewsModel> arrNews;
-	private LayoutInflater lf;
+	private ArrayList<DataModel> dataList;
 	private VolleyAdapter va;
 	private ProgressDialog pd;
+	private ImageLoader mImageLoader;
+
+	protected double longitude, latitude;
+	protected LocationManager locationManager;
+
+	/*
+	 * Extends from DisckBasedCache --> Utility from volley toolbox. Also implements ImageCache, so that we can pass this custom implementation to
+	 * ImageLoader.
+	 */
+	public class DiskBitmapCache extends DiskBasedCache implements ImageCache {
+
+		public DiskBitmapCache(File rootDirectory, int maxCacheSizeInBytes) {
+			super(rootDirectory, maxCacheSizeInBytes);
+		}
+
+		public DiskBitmapCache(File cacheDir) {
+			super(cacheDir);
+		}
+
+		public Bitmap getBitmap(String url) {
+			final Entry requestedItem = get(url);
+
+			if (requestedItem == null)
+				return null;
+
+			return BitmapFactory.decodeByteArray(requestedItem.data, 0, requestedItem.data.length);
+		}
+
+		public void putBitmap(String url, Bitmap bitmap) {
+
+			final Entry entry = new Entry();
+
+			/*
+			 * //Down size the bitmap.If not done, OutofMemoryError occurs while decoding large bitmaps. // If w & h is set during image request (
+			 * using ImageLoader ) then this is not required. ByteArrayOutputStream baos = new ByteArrayOutputStream(); Bitmap downSized =
+			 * BitmapUtil.downSizeBitmap(bitmap, 50);
+			 * 
+			 * downSized.compress(Bitmap.CompressFormat.JPEG, 100, baos); byte[] data = baos.toByteArray();
+			 * 
+			 * System.out.println("####### Size of bitmap is ######### "+url+" : "+data.length); entry.data = data ;
+			 */
+
+			entry.data = BitmapUtil.convertBitmapToBytes(bitmap);
+			put(url, entry);
+		}
+	}
+
+	public class MyComparatorGlobal implements Comparator<DataModel> {
+
+		@Override
+		public int compare(DataModel lhs, DataModel rhs) {
+			return lhs.getOutletName().compareToIgnoreCase(rhs.getOutletName());
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		lf = LayoutInflater.from(this);
 
-		arrNews = new ArrayList<NewsModel>();
-		va = new VolleyAdapter();
+		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 
+		dataList = new ArrayList<DataModel>();
+		va = new VolleyAdapter(this);
+
+		showToast("1");
 		lstView = (ListView) findViewById(R.id.listView);
 		lstView.setAdapter(va);
 		mRequestQueue = Volley.newRequestQueue(this);
+
+		int max_cache_size = 1000000;
+		mImageLoader = new ImageLoader(mRequestQueue, new DiskBitmapCache(getCacheDir(), max_cache_size));
+		showToast("2");
 		String url = "http://staging.couponapitest.com/task_data.txt";
 		pd = ProgressDialog.show(this, "Please Wait...", "Please Wait...");
 
 		JsonObjectRequest jr = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 			@Override
 			public void onResponse(JSONObject response) {
-				Log.i(TAG, response.toString());
-				parseJSON(response);
-				va.notifyDataSetChanged();
+				try {
+					showToast("3");
+					Log.i(TAG, response.toString());
+					parseJSON(response);
+					va.notifyDataSetChanged();
+				} catch (Exception e) {
+					e.printStackTrace();
+					showToast("JSON parse error");
+				}
 				pd.dismiss();
 			}
 		}, new Response.ErrorListener() {
@@ -68,92 +152,100 @@ public class MainActivity extends Activity {
 
 	}
 
-	private void parseJSON(JSONObject json) {
-		try {
-			JSONObject data = json.getJSONObject("data");
-			for (Iterator<String> iter = data.keys(); iter.hasNext();) {
-				String key = iter.next();
-				if (data.has(key)) {
-					System.out.println("key : " + key);
-					JSONObject keyJobj = data.getJSONObject(key);
-
-					NewsModel nm = new NewsModel();
-					nm.setTitle(keyJobj.optString("OutletName"));
-					nm.setDescription(keyJobj.optString("Address"));
-					nm.setLink(keyJobj.optString("PhoneNumber"));
-					nm.setPubDate(keyJobj.optString("CityName"));
-					arrNews.add(nm);
-
-					JSONArray Categories = keyJobj.getJSONArray("Categories");
-					for (int i = 0; i < Categories.length(); i++) {
-
-						JSONObject item = Categories.getJSONObject(i);
-						// NewsModel nm = new NewsModel();
-						// nm.setTitle(item.optString("Name"));
-						// nm.setDescription(item.optString("CategoryType"));
-						// nm.setLink(item.optString("ParentCategoryID"));
-						// nm.setPubDate(item.optString("OfflineCategoryID"));
-						// arrNews.add(nm);
-					}
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+	private void showToast(String msg) {
+		Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
 	}
 
-	class NewsModel {
-		private String title;
-		private String link;
-		private String description;
-		private String pubDate;
+	private void parseJSON(JSONObject json) throws JSONException {
 
-		void setTitle(String title) {
-			this.title = title;
+		if (json.has("data")) {
+			try {
+				JSONObject data = json.getJSONObject("data");
+				for (Iterator<String> iter = data.keys(); iter.hasNext();) {
+					String key = iter.next();
+					if (data.has(key)) {
+						System.out.println("key : " + key);
+						JSONObject keyJobj = data.getJSONObject(key);
+
+						DataModel dataModel = new DataModel();
+
+						dataModel.setSubFranchiseID(keyJobj.optString("SubFranchiseID"));
+						dataModel.setOutletID(keyJobj.optString("OutletID"));
+						dataModel.setOutletName(keyJobj.optString("OutletName"));
+						dataModel.setBrandID(keyJobj.optString("BrandID"));
+						dataModel.setAddress(keyJobj.optString("Address"));
+
+						dataModel.setNeighbourhoodID(keyJobj.optString("NeighbourhoodID"));
+						dataModel.setCityID(keyJobj.optString("CityID"));
+						dataModel.setEmail(keyJobj.optString("Email"));
+						dataModel.setTimings(keyJobj.optString("Timings"));
+
+						dataModel.setCityRank(keyJobj.optString("CityRank"));
+						dataModel.setLatitude(keyJobj.optString("Latitude"));
+						dataModel.setLongitude(keyJobj.optString("Longitude"));
+						dataModel.setPincode(keyJobj.optString("Pincode"));
+						dataModel.setLandmark(keyJobj.optString("Landmark"));
+						dataModel.setStreetname(keyJobj.optString("Streetname"));
+
+						dataModel.setBrandName(keyJobj.optString("BrandName"));
+						dataModel.setOutletURL(keyJobj.optString("OutletURL"));
+						dataModel.setNumCoupons(keyJobj.optInt("NumCoupons"));
+						dataModel.setNeighbourhoodName(keyJobj.optString("NeighbourhoodName"));
+						dataModel.setPhoneNumber(keyJobj.optString("PhoneNumber"));
+
+						dataModel.setCityName(keyJobj.optString("CityName"));
+						dataModel.setDistance(keyJobj.optLong("Distance"));
+						dataModel.setLogoURL(keyJobj.optString("LogoURL"));
+						dataModel.setCoverURL(keyJobj.optString("CoverURL"));
+
+						if (keyJobj.has("Categories")) {
+							if (!keyJobj.isNull("Categories")) {
+								JSONArray cat_Array = keyJobj.getJSONArray("Categories");
+
+								ArrayList<CategoryModel> categoryList = new ArrayList<CategoryModel>();
+
+								for (int k = 0; k < cat_Array.length(); k++) {
+									CategoryModel categoryModel = new CategoryModel();
+									JSONObject catJobj = cat_Array.getJSONObject(k);
+
+									categoryModel.setCategoryType(catJobj.getString("CategoryType"));
+									categoryModel.setName(catJobj.getString("Name"));
+									categoryModel.setOfflineCategoryID(catJobj.getString("OfflineCategoryID"));
+									categoryModel.setParentCategoryID(catJobj.getString("ParentCategoryID"));
+
+									categoryList.add(categoryModel);
+								}
+								dataModel.setCategory(categoryList);
+							}
+						}
+						dataList.add(dataModel);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-
-		void setLink(String link) {
-			this.link = link;
-		}
-
-		void setDescription(String description) {
-			this.description = description;
-		}
-
-		void setPubDate(String pubDate) {
-			this.pubDate = pubDate;
-		}
-
-		String getLink() {
-			return link;
-		}
-
-		String getDescription() {
-			return description;
-		}
-
-		String getPubDate() {
-			return pubDate;
-		}
-
-		String getTitle() {
-
-			return title;
-		}
+		showToast("4");
+		showToast("lat:" + latitude + "\n" + "Long:" + longitude);
+		Collections.sort(dataList, new MyComparatorGlobal());
 	}
 
 	class VolleyAdapter extends BaseAdapter {
 
+		private LayoutInflater mInflater;
+
+		public VolleyAdapter(Context context) {
+			mInflater = LayoutInflater.from(context);
+		}
+
 		@Override
 		public int getCount() {
-			return arrNews.size();
+			return dataList.size();
 		}
 
 		@Override
 		public Object getItem(int i) {
-			return arrNews.get(i);
+			return dataList.get(i);
 		}
 
 		@Override
@@ -162,35 +254,75 @@ public class MainActivity extends Activity {
 		}
 
 		@Override
-		public View getView(int i, View view, ViewGroup viewGroup) {
-			ViewHolder vh;
-			if (view == null) {
-				vh = new ViewHolder();
-				view = lf.inflate(R.layout.row_listview, null);
-				vh.tvTitle = (TextView) view.findViewById(R.id.txtTitle);
-				vh.tvDesc = (TextView) view.findViewById(R.id.txtDesc);
-				vh.tvDate = (TextView) view.findViewById(R.id.txtDate);
-				vh.imgLogo = (ImageView) view.findViewById(R.id.imgLogo);
-				view.setTag(vh);
+		public View getView(int position, View convertView, ViewGroup viewGroup) {
+			ViewHolder holder;
+			if (convertView == null) {
+				convertView = mInflater.inflate(R.layout.row_listview, null);
+
+				holder = new ViewHolder();
+				holder.txtOutletName = (TextView) convertView.findViewById(R.id.txt_outletName);
+				holder.txtOffers = (TextView) convertView.findViewById(R.id.txt_offers);
+				holder.txtCategory = (TextView) convertView.findViewById(R.id.txt_category);
+				holder.txtDistance = (TextView) convertView.findViewById(R.id.txt_distance);
+				holder.imgLogo = (ImageView) convertView.findViewById(R.id.imgLogo);
+				holder.imgWishHeart = (ImageView) convertView.findViewById(R.id.img_wishHeart);
+
+				convertView.setTag(holder);
 			} else {
-				vh = (ViewHolder) view.getTag();
+				holder = (ViewHolder) convertView.getTag();
 			}
 
-			NewsModel nm = arrNews.get(i);
-			vh.tvTitle.setText(nm.getTitle());
-			vh.tvDesc.setText(nm.getDescription());
-			vh.tvDate.setText(nm.getPubDate());
-			// vh.imgLogo.setImageBitmap(nm.getPubDate());
-			return view;
+			DataModel dataModel = dataList.get(position);
+			holder.txtOutletName.setText(dataModel.getOutletName());
+			holder.txtDistance.setText(String.valueOf(dataModel.getDistance()) + " m " + dataModel.getNeighbourhoodName());
+
+			holder.txtOffers.setText(String.valueOf(dataModel.getNumCoupons()));
+			// vh.txtOffers.setText(dataModel.getNumCoupons() == 1 ? String.valueOf(dataModel.getNumCoupons()) + " Offer" : String.valueOf(dataModel
+			// .getNumCoupons()) + " Offers"); // same but converted int to String
+			holder.txtOffers.setText(dataModel.getNumCoupons() == 1 ? dataModel.getNumCoupons() + " Offer" : dataModel.getNumCoupons() + " Offers");
+
+			mImageLoader.get(dataList.get(position).getLogoURL(), new FadeInImageListener(holder.imgLogo, MainActivity.this));
+
+			return convertView;
 		}
 
 		class ViewHolder {
-			TextView tvTitle;
-			ImageView imgLogo;
-			TextView tvDesc;
-			TextView tvDate;
+			TextView txtOutletName;
+			TextView txtOffers;
+			TextView txtCategory;
+			TextView txtDistance;
 
+			ImageView imgLogo;
+			ImageView imgWishHeart;
 		}
+
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		// 21.1177565, 79.046385 //room
+		// txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
+		latitude = location.getLatitude();
+		longitude = location.getLongitude();
+		showToast("5");
+		showToast("123 lat:" + latitude + "\n" + "Long:" + longitude);
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
 
 	}
 }
