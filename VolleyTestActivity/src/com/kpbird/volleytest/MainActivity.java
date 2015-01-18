@@ -45,6 +45,7 @@ import com.mani.volleydemo.util.BitmapUtil;
 
 public class MainActivity extends Activity implements LocationListener {
 
+	Context context;
 	private String TAG = this.getClass().getSimpleName();
 	private ListView lstView;
 	private RequestQueue mRequestQueue;
@@ -111,6 +112,8 @@ public class MainActivity extends Activity implements LocationListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		context = this;
+
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 
@@ -119,36 +122,6 @@ public class MainActivity extends Activity implements LocationListener {
 
 		showToast("1");
 		lstView = (ListView) findViewById(R.id.listView);
-		lstView.setAdapter(va);
-		mRequestQueue = Volley.newRequestQueue(this);
-
-		int max_cache_size = 1000000;
-		mImageLoader = new ImageLoader(mRequestQueue, new DiskBitmapCache(getCacheDir(), max_cache_size));
-		showToast("2");
-		String url = "http://staging.couponapitest.com/task_data.txt";
-		pd = ProgressDialog.show(this, "Please Wait...", "Please Wait...");
-
-		JsonObjectRequest jr = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-			@Override
-			public void onResponse(JSONObject response) {
-				try {
-					showToast("3");
-					Log.i(TAG, response.toString());
-					parseJSON(response);
-					va.notifyDataSetChanged();
-				} catch (Exception e) {
-					e.printStackTrace();
-					showToast("JSON parse error");
-				}
-				pd.dismiss();
-			}
-		}, new Response.ErrorListener() {
-			@Override
-			public void onErrorResponse(VolleyError error) {
-				Log.i(TAG, error.getMessage());
-			}
-		});
-		mRequestQueue.add(jr);
 
 	}
 
@@ -221,6 +194,7 @@ public class MainActivity extends Activity implements LocationListener {
 						dataList.add(dataModel);
 					}
 				}
+				fileStore();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -228,6 +202,34 @@ public class MainActivity extends Activity implements LocationListener {
 		showToast("4");
 		showToast("lat:" + latitude + "\n" + "Long:" + longitude);
 		Collections.sort(dataList, new MyComparatorGlobal());
+	}
+
+	private void fileStore() {
+		// TODO Auto-generated method stub
+		File yFile = new File(context.getFilesDir() + "/ReelApp_Video");
+
+		if (!yFile.exists()) {
+			yFile.mkdirs();
+		}
+
+		String fileName = "your file name";
+		try {
+			if (fileName != null && fileName.length() > 0) {
+
+				Log.i("TAG", "Video download Filename: " + fileName);
+			}
+			file = new File(yFile.getAbsolutePath() + File.separator + Common.getTimeStamp() + "VIDD" + fileName);
+
+			// getting file length
+			int lenghtOfFile = ucon.getContentLength();
+			long total = 0;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (file.exists()) {
+				file.delete();
+			}
+		}
 	}
 
 	class VolleyAdapter extends BaseAdapter {
@@ -302,6 +304,37 @@ public class MainActivity extends Activity implements LocationListener {
 	public void onLocationChanged(Location location) {
 		// 21.1177565, 79.046385 //room
 		// txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
+
+		lstView.setAdapter(va);
+		mRequestQueue = Volley.newRequestQueue(context);
+
+		int max_cache_size = 1000000;
+		mImageLoader = new ImageLoader(mRequestQueue, new DiskBitmapCache(getCacheDir(), max_cache_size));
+		showToast("2");
+		String url = "http://staging.couponapitest.com/task_data.txt";
+		pd = ProgressDialog.show(context, "Please Wait...", "Please Wait...");
+
+		JsonObjectRequest jr = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+			@Override
+			public void onResponse(JSONObject response) {
+				try {
+					showToast("3");
+					Log.i(TAG, response.toString());
+					parseJSON(response);
+					va.notifyDataSetChanged();
+				} catch (Exception e) {
+					e.printStackTrace();
+					showToast("JSON parse error");
+				}
+				pd.dismiss();
+			}
+		}, new Response.ErrorListener() {
+			@Override
+			public void onErrorResponse(VolleyError error) {
+				Log.i(TAG, error.getMessage());
+			}
+		});
+		mRequestQueue.add(jr);
 		latitude = location.getLatitude();
 		longitude = location.getLongitude();
 		showToast("5");
